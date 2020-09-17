@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs 
+Content-Type: application/json
+
+{
+    "title": "The Kitchn",
+	"author": "Author",
+	"url": "https://www.thekitchn.com/",
+	"likes": "1"
+}
