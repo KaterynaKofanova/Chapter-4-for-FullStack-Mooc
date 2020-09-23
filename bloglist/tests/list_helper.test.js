@@ -1,3 +1,4 @@
+
 const listHelper = require('../utils/list_helper')
 
 test('dummy returns one', () => {
@@ -104,5 +105,25 @@ describe('favouriteBlog', () => {
 
 	test('of empty list is 0', () => {
 		expect(favouriteBlog([])).toBe(0)
+	})
+})
+
+const mostBlogs = require('../utils/list_helper').mostBlogs
+describe('mostBlogs', () => {
+	test('of several blogs is calculated right', () => {
+		expect(mostBlogs(blogs)).toEqual({
+			author: 'Robert C. Martin',
+			blogs: 3
+		})
+	})
+})
+
+const mostLikes = require('../utils/list_helper').mostLikes
+describe('mostLikes', () => {
+	test('of several blogs is calculated right', () => {
+		expect(mostLikes(blogs)).toEqual({
+			author: 'Robert C. Martin',
+			likes: 12
+		})
 	})
 })
