@@ -46,6 +46,25 @@ test('making a POST request successfully creates a new blog post', async() => {
     
 })
 
+test('if likes is empty it is set to 0', async() => {
+    const newBlog = {
+		title: 'Go To Statement Considered Harmful',
+		author: 'Edsger W. Dijkstra',
+		url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html'
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const addedBlog = blogsAtEnd.filter(blog => blog.title === 'Go To Statement Considered Harmful').map(blog => blog.likes)
+    expect(addedBlog[0]).toBe(0)
+
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
