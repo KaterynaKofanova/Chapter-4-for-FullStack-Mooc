@@ -65,6 +65,20 @@ test('if likes is empty it is set to 0', async() => {
 
 })
 
+test('if title and url are missing the response is 400', async() => {
+    const newBlog = {
+        author: 'Edsger'
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+    
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
