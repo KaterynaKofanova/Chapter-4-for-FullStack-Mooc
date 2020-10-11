@@ -98,6 +98,27 @@ test('delete succeeds with status code 204 if id is valid', async () => {
     expect(titles).not.toContain(blogToDelete.title)
   })
 
+test('updating likes of a single blogpost is successfull', async() => {
+    const updatedBlog = {   
+        title: 'TDD harms architecture',
+        author: 'Robert C. Martin',
+        url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+        likes: 11
+    }
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart.filter(blog => blog.title === 'TDD harms architecture')[0]
+
+    await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlog)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    const likes = blogsAtEnd.filter(blog => blog.title === 'TDD harms architecture')[0].likes
+    expect(likes).toBe(11)
+
+})
 afterAll(() => {
     mongoose.connection.close()
 })
