@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthdGVyeW5hSyIsImlkIjoiNWY4ZDY2OTc5ZjYwOGExZTM3NTBlMTQ3IiwiaWF0IjoxNjAzMzczMjQzfQ.KKR_pT-Z30w1qidigoXsGM0ZS-ZPm725N5GlyhAcFPU
+
+{
+    "title" : "BlogToken",
+    "author" : "ABC",
+    "url" : "www.blog.com"
+}
