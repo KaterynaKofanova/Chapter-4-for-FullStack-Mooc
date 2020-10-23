@@ -1,6 +1,6 @@
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthdGVyeW5hSyIsImlkIjoiNWY4ZDY2OTc5ZjYwOGExZTM3NTBlMTQ3IiwiaWF0IjoxNjAzNDUzMzI5fQ.HohVQyKOLGnZFiHa98TKLmVoMBx6tZeBXW9O9GCePK4
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkthdGVyeW5hSyIsImlkIjoiNWY4ZDY2OTc5ZjYwOGExZTM3NTBlMTQ3IiwiaWF0IjoxNjAzNDU1MzgxfQ.8NmQ6TJg54O4EfA7_c3ifxSnBFzgqsCYnxLNt0zvxEk
 
 {
     "title" : "MiddlewareToken",
