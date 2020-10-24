@@ -5,14 +5,28 @@ const api = supertest(app)
 const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const test_helper = require('./test_helper')
 const { response } = require('express')
 
+let token 
 beforeEach(async()=> {
     await Blog.deleteMany({})
     const blogObjects = helper.initialBlogs.map(blog=> new Blog (blog))
     const promiseArray = blogObjects.map(blog => blog.save())
     await Promise.all(promiseArray)
+    //Add user
+    await User.deleteMany({})
+    await api
+        .post('/api/users')
+        .send({ username: 'root', password: 'sekret' })
+    //Login and save token
+    const logged = await api.post("/api/login")
+    .send({
+      username: "root",
+      password: "sekret"
+    });
+    token = logged.body.token;
 })
 
 test('blogs are returned as json', async() => {
@@ -28,22 +42,42 @@ test ('unique identifier property of the blog posts is named id', async() => {
 })
 
 test('making a POST request successfully creates a new blog post', async() => {
-    const newBlog = {
+  const newBlog = {
 		title: 'Go To Statement Considered Harmful',
 		author: 'Edsger W. Dijkstra',
 		url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
 		likes: 5
-    }
+  }
     
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
+  await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set ('Authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd.length).toBe(helper.initialBlogs.length + 1)
     
+})
+
+test('adding a blog fails with status code 401 if a token is not provided', async() => {
+  const newBlog = {
+		title: 'Go To Statement Considered Harmful',
+		author: 'Edsger W. Dijkstra',
+		url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+		likes: 5
+  }
+    
+  await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set ('Authorization', 'bearer')
+      .expect(401)
+    
+
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
 })
 
 test('if likes is empty it is set to 0', async() => {
@@ -56,6 +90,7 @@ test('if likes is empty it is set to 0', async() => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set ('Authorization', `bearer ${token}`)
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
@@ -73,6 +108,7 @@ test('if title and url are missing the response is 400', async() => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set ('Authorization', `bearer ${token}`)
         .expect(400)
     
     const blogsAtEnd = await helper.blogsInDb()
@@ -80,17 +116,32 @@ test('if title and url are missing the response is 400', async() => {
 })
 
 test('delete succeeds with status code 204 if id is valid', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+    const users = await User.find({})
+    userID = users[0]._id
+    const newBlog = {
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5
+    }
+      
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .set ('Authorization', `bearer ${token}`)
+    
+    const blogsAtStart = await test_helper.blogsInDb()
+    const blogToDelete = await Blog.findOne({user: userID})
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set ('Authorization', `bearer ${token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
 
     expect(blogsAtEnd).toHaveLength(
-      helper.initialBlogs.length - 1
+      blogsAtStart.length - 1
     )
 
     const titles = blogsAtEnd.map(blog => blog.title)
@@ -120,7 +171,7 @@ test('updating likes of a single blogpost is successfull', async() => {
 
 })
 
-describe('when there is initially one user at db', () => {
+/*describe('when there is initially one user at db', () => {
     beforeEach(async () => {
       await User.deleteMany({})
       const user = new User({ username: 'root', password: 'sekret' })
@@ -169,8 +220,7 @@ describe('when there is initially one user at db', () => {
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd.length).toBe(usersAtStart.length)
     })
-  })
-})
+})*/
 afterAll(() => {
     mongoose.connection.close()
 })
